@@ -5,12 +5,31 @@ Created on 6/10/2014
 '''
 import sys
 import psutil
+import serial
+import time
 
+ser = serial.Serial('/dev/tty.usbmodem1421',9600,timeout=3)
 
-#cpu utilisation
-stats = psutil.cpu_percent(interval=1, percpu=True);
-print(stats)
+time.sleep(3)
+if (not ser.isOpen()):
+    print "Cannot open Serial!"
+else:
+    while(True):
+        stats = psutil.cpu_percent(interval=0.2, percpu=True);
+        cpuusage = 0;
+        #cpu utilisation
+        print(stats)
+        for i in stats:
+            cpuusage += i;
+        cpuusage = cpuusage/len(stats)
+        if cpuusage >= 100:
+            cpuusage = 99;
 
-#cpu times
-stats_cup_times = psutil.cpu_times_percent(interval=1, percpu=True)
-print(stats_cup_times)
+        hey = "a" +  ("%02d" %cpuusage)
+        print hey
+        ser.write(hey)
+        """ser.write(hey[0])
+        ser.write(hey[1])
+        ser.write(hey[2])"""
+        #ser.write('b')
+        print ser.read()
